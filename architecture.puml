@@ -1,0 +1,53 @@
+@startuml
+
+node websites{
+[website] as web
+[swagger]
+}
+node backend {
+    node emailrealitychecker{
+        [RFCValidation]
+        [NoRFCWarningsValidation]
+        [DNSCheckValidation]
+        [SpoofCheckValidation]
+
+    }
+    node emailinbasechecker {
+        [CheckDBPowned]
+    }
+    node converters {
+        [PownedListConverter]
+    }
+    node logs {
+        [LogsWriter]
+    }
+    node logsAnalisis {
+        [LogParser]
+    }
+
+    database "clientsdata"{
+
+    }
+    database "pawneddb"{
+
+    }
+    database "rawlogs"{
+
+    }
+    node apimanagement{
+        [Kong]
+    }
+}
+
+web <-> [Kong]: All request
+[Kong] <--> emailrealitychecker
+[Kong] <--> emailinbasechecker
+emailinbasechecker --> [LogsWriter]
+emailrealitychecker --> [LogsWriter]
+[LogsWriter] --> rawlogs
+[Kong] <--> clientsdata : set/get client data from elasticsearch
+[CheckDBPowned] <--> pawneddb
+[PownedListConverter] -> pawneddb
+[LogParser] <-rawlogs
+
+@enduml
