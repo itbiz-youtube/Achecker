@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"strconv"
 	"strings"
 )
 
@@ -43,21 +42,23 @@ func emailSet(w http.ResponseWriter, r *http.Request) {
 	clearemail := strings.ReplaceAll(p.Email, "{", "")
 
 	//Вызов проверки длины email
-	resultMaxLengthCheck := emailLengthValidation(clearemail)
-	if resultMaxLengthCheck != "0" {
-		js, err := json.Marshal(resultMaxLengthCheck)
-		var val []byte = []byte(js)
-		s, _ := strconv.Unquote(string(val))
-		if err == nil {
-			log.Println("Success send response" + resultMaxLengthCheck)
-			w.Header().Set("Content-Type", "application/json")
-			w.Write([]byte(s))
-		} else {
-			log.Println("Error send response" + resultMaxLengthCheck)
+	// resultMaxLengthCheck := emailLengthValidation(clearemail)
+	// if resultMaxLengthCheck != "0" {
+	// 	js, err := json.Marshal(resultMaxLengthCheck)
+	// 	var val []byte = []byte(js)
+	// 	s, _ := strconv.Unquote(string(val))
+	// 	if err == nil {
+	// 		log.Println("Success send response" + resultMaxLengthCheck)
+	// 		w.Header().Set("Content-Type", "application/json")
+	// 		w.Write([]byte(s))
+	// 	} else {
+	// 		log.Println("Error send response" + resultMaxLengthCheck)
 
-		}
+	// 	}
 
-	}
+	// }
+
+	emailDNSValidation(clearemail)
 }
 
 //TODO:Сделать пакет из этой функции
@@ -88,6 +89,55 @@ func emailLengthValidation(email string) string {
 		return "0"
 	}
 
+}
+
+func emailDNSValidation(email string) string {
+	// Arguable pattern to extract the domain. Not aiming to validate the domain nor the email
+	lastATpos := strings.Index(email, "@")
+	// fmt.Println(lastATpos)
+	lengthofstring := len(email)
+	// fmt.Println(lengthofstring)
+	host := string(email[lastATpos+1 : lengthofstring])
+	hostparts := strings.Split(host, ".")
+	fmt.Println(hostparts)
+	reservedTopLevelDNSNames := []string{
+		"test",
+		"example",
+		"invalid",
+		"localhost",
+		// mDNS
+		"local",
+		// Private DNS Namespaces
+		"intranet",
+		"internal",
+		"private",
+		"corp",
+		"home",
+		"lan",
+	}
+	// lengthofstring := len(email)
+	// errorcode := "1000"
+	// errortext := "bigger then max(254) email length"
+	// jsstring := *new(string)
+	// if lengthofstring > EmailMaxLength { //check length of email
+	// 	log.Println(email + ";" + errortext + ";errorcodenum=" + errorcode)
+	// 	emailvarresult := EmailValidationResult{
+	// 		email, errorcode, errortext,
+	// 	}
+	// 	js, err := json.Marshal(emailvarresult)
+	// 	if err == nil {
+	// 		jsstring := string(js)
+	// 		// fmt.Printf(jsstring)
+	// 		return (jsstring)
+	// 	} else {
+	// 		log.Println("Error make json when check email" + email)
+	// 		// fmt.Printf(jsstring)
+	// 		return (jsstring)
+	// 	}
+	// } else {
+	// 	return "0"
+	// }
+	return (email)
 }
 
 func main() {
