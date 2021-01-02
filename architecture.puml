@@ -5,7 +5,7 @@ node websites{
 [swagger]
 }
 node backend {
-    node emailrealitychecker{
+    node emailrealitychecker as "Achecker"{
         [RFCValidation]
         [NoRFCWarningsValidation]
         [DNSCheckValidation]
