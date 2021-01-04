@@ -23,11 +23,6 @@ type EmailValidationResult struct {
 	ErrorText    string
 }
 
-// type DNSRecord struct {
-// 	DNSMX string
-// 	DNSA  string
-// }
-
 const EmailMaxLength int = 254
 
 func emailSet(w http.ResponseWriter, r *http.Request) {
@@ -57,7 +52,7 @@ func emailSet(w http.ResponseWriter, r *http.Request) {
 
 		log.Println("Error send response" + resultMaxLengthCheck)
 	} else if resultMaxLengthCheck == "0" {
-		log.Println("OK;" + clearemail + ";go to next check")
+		log.Println("OK;" + "MaxLenghthCheck;" + clearemail + ";go to next check")
 
 	} else {
 		js, err := json.Marshal(resultMaxLengthCheck)
@@ -73,12 +68,12 @@ func emailSet(w http.ResponseWriter, r *http.Request) {
 	}
 
 	resultCheckLocalOrReservedDNS := emailDNSValidation(clearemail)
-	// fmt.Println(resultCheckLocalOrReservedDNS)
+
 	if resultCheckLocalOrReservedDNS == "error" {
 
 		log.Println("Error send response" + resultCheckLocalOrReservedDNS)
 	} else if resultCheckLocalOrReservedDNS == "0" {
-		log.Println("OK;" + clearemail + ";go to next check")
+		log.Println("OK;" + "LocalOrReservedDNS;" + clearemail + ";go to next check")
 
 	} else {
 		js, err := json.Marshal(resultCheckLocalOrReservedDNS)
@@ -98,7 +93,7 @@ func emailSet(w http.ResponseWriter, r *http.Request) {
 
 		log.Println("Error send response" + resultCheckExistingDNSRecords)
 	} else if resultCheckExistingDNSRecords == "0" {
-		log.Println("OK;" + clearemail + ";go to next check")
+		log.Println("OK;" + "DnsCheck;" + clearemail + ";go to next check")
 
 	} else {
 		js, err := json.Marshal(resultCheckExistingDNSRecords)
@@ -111,6 +106,21 @@ func emailSet(w http.ResponseWriter, r *http.Request) {
 
 		}
 
+	}
+
+	//Если все было хорошо то отправляем то отправляем хороший ответ
+	log.Println("Success checked no problem with email:" + clearemail)
+	errorcode := "NULL"
+	errortext := "NULL"
+	emailvarresult := EmailValidationResult{
+		clearemail, errorcode, errortext,
+	}
+	js, err := json.Marshal(emailvarresult)
+	// var val []byte = []byte(js)
+	// s, _ := strconv.Unquote(string(val))
+	if err == nil {
+		w.Header().Set("Content-Type", "application/json")
+		w.Write([]byte(js))
 	}
 
 }
