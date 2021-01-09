@@ -1,7 +1,7 @@
 # Build Stage
 FROM lacion/alpine-golang-buildimage:1.13 AS build-stage
 
-LABEL app="build-Achecker"
+LABEL app="Achecker"
 LABEL REPO="https://github.com/itbiz-youtube/Achecker"
 
 ENV PROJPATH=/go/src/github.com/itbiz-youtube/Achecker
@@ -36,5 +36,5 @@ RUN adduser -D -g '' Achecker
 USER Achecker
 
 ENTRYPOINT ["/usr/bin/dumb-init", "--"]
-
+EXPOSE 4000
 CMD ["/opt/Achecker/bin/Achecker"]

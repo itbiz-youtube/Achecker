@@ -25,6 +25,8 @@ type EmailValidationResult struct {
 
 const EmailMaxLength int = 254
 
+var statusOfSendingResponse bool = false
+
 func emailSet(w http.ResponseWriter, r *http.Request) {
 	var p Email
 
@@ -62,7 +64,7 @@ func emailSet(w http.ResponseWriter, r *http.Request) {
 			log.Println("Success send response" + resultMaxLengthCheck)
 			w.Header().Set("Content-Type", "application/json")
 			w.Write([]byte(s))
-
+			statusOfSendingResponse = true
 		}
 
 	}
@@ -83,7 +85,7 @@ func emailSet(w http.ResponseWriter, r *http.Request) {
 			log.Println("Success send response" + resultCheckLocalOrReservedDNS)
 			w.Header().Set("Content-Type", "application/json")
 			w.Write([]byte(s))
-
+			statusOfSendingResponse = true
 		}
 
 	}
@@ -103,26 +105,27 @@ func emailSet(w http.ResponseWriter, r *http.Request) {
 			log.Println("Success send response" + resultCheckExistingDNSRecords)
 			w.Header().Set("Content-Type", "application/json")
 			w.Write([]byte(s))
-
+			statusOfSendingResponse = true
 		}
 
 	}
 
 	//Если все было хорошо то отправляем то отправляем хороший ответ
-	log.Println("Success checked no problem with email:" + clearemail)
-	errorcode := "NULL"
-	errortext := "NULL"
-	emailvarresult := EmailValidationResult{
-		clearemail, errorcode, errortext,
+	if statusOfSendingResponse == false {
+		log.Println("Success checked no problem with email:" + clearemail)
+		errorcode := "NULL"
+		errortext := "NULL"
+		emailvarresult := EmailValidationResult{
+			clearemail, errorcode, errortext,
+		}
+		js, err := json.Marshal(emailvarresult)
+		// var val []byte = []byte(js)
+		// s, _ := strconv.Unquote(string(val))
+		if err == nil {
+			w.Header().Set("Content-Type", "application/json")
+			w.Write([]byte(js))
+		}
 	}
-	js, err := json.Marshal(emailvarresult)
-	// var val []byte = []byte(js)
-	// s, _ := strconv.Unquote(string(val))
-	if err == nil {
-		w.Header().Set("Content-Type", "application/json")
-		w.Write([]byte(js))
-	}
-
 }
 
 //TODO:Сделать пакет из этой функции
